@@ -1,26 +1,35 @@
 import requests
+import urllib.parse
 import csv
 import json
 import pandas as pd
+import re
+from dotenv import load_dotenv
+import os
 
 from newsapi import NewsApiClient
 
+load_dotenv()
 
 def sentiment_analysis(text):
     url = "https://text-sentiment.p.rapidapi.com/analyze"
-
-    payload = text
+    formatted = text.translate ({ord(c): "" for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+"})
+    formatted = urllib.parse.quote(formatted)
+    payload = f"text={formatted}"
+    print (payload)
     headers = {
         'x-rapidapi-host': "text-sentiment.p.rapidapi.com",
-        'x-rapidapi-key': "5f8c28ffe5mshfbbfda0284d77fap10a115jsn860be8760043",
+        'x-rapidapi-key': os.getenv("RAPID_API_KEY"),
         'content-type': "application/x-www-form-urlencoded"
         }
 
     response = requests.request("POST", url, data=payload, headers=headers)
+    score = 0
+    score += response.json()['pos']
+    score -= response.json()['neg']
+    return score
 
 
-    print(response.text)
-    return response.text
 
 
 # Init
@@ -39,9 +48,9 @@ all_articles = newsapi.get_everything(q='tsla',
 
 news_df = pd.DataFrame.from_dict(all_articles['articles'])
 
-news_df = news_df[['source','author','title','description','publishedAt']]
+news_df = news_df[['source','author','title','publishedAt']]
 news_df['source'] = news_df['source'].apply(lambda x: x['name'])
-news_df['sentiment'] = news_df['description'].apply(lambda x: sentiment_analysis(x))
+news_df['sentiment'] = news_df['title'].apply(lambda x: sentiment_analysis(x))
 
 news_df.to_csv('news_data.csv')
 
