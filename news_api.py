@@ -43,7 +43,7 @@ all_articles = newsapi.get_everything(q='tsla',
                                       language='en',
                                       sort_by='relevancy',
                                       page_size=100,
-                                      page=1)       
+                                      page=1)
 
 
 news_df = pd.DataFrame.from_dict(all_articles['articles'])

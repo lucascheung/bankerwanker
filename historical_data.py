@@ -13,11 +13,11 @@ ts = TimeSeries(key, output_format='pandas')
 ti = TechIndicators(key)
 
 # Get the data, returns a tuple
-# aapl_data is a pandas dataframe, aapl_meta_data is a dict
-aapl_data, aapl_meta_data = ts.get_daily(symbol='AAPL', outputsize='full')
-# aapl_sma is a dict, aapl_meta_sma also a dict
-aapl_sma, aapl_meta_sma = ti.get_sma(symbol='AAPL')
+# tsla_data is a pandas dataframe, tsla_meta_data is a dict
+tsla_data, tsla_meta_data = ts.get_daily(symbol='TSLA', outputsize='full')
+# tsla_sma is a dict, tsla_meta_sma also a dict
+tsla_sma, tsla_meta_sma = ti.get_sma(symbol='TSLA')
 
-print (aapl_data)
-print(aapl_meta_data)
+print (tsla_data)
+print(tsla_meta_data)
 

@@ -1,19 +1,42 @@
 import pprint
+from dotenv import load_dotenv
+import os
 
 from googleapiclient.discovery import build
+from IPython import embed
 
-def main():
-  # Build a service object for interacting with the API. Visit
-  # the Google APIs Console <http://code.google.com/apis/console>
-  # to get an API key for your own application.
+load_dotenv()
+
+
+def search_bloomberg_news(query):
+
+  key = os.getenv("GOOGLE_CSE_API_KEY")
   service = build("customsearch", "v1",
-            developerKey="AIzaSyDRRpR3GS1F1_jKNNM9HCNd2wJQyPG3oN0")
+            developerKey=key)
 
-  res = service.cse().list(
-      q='lectures',
-      cx='017576662512468239146:omuauf_lfve',
-    ).execute()
-  pprint.pprint(res)
+  page_size = 10
+  offset = 1
+  more_pages = True
+  final = []
+  while more_pages and offset < 100:
+    res = service.cse().list(
+        q=query,
+        cx='002823925215809699006:zouiii0rfzq',
+        num=10,
+        start=offset
+      ).execute()
+    if 'items' in res:
+      # pprint.pprint(res)
+      entry = {}
+      entry['content'] = res['items'][0]['pagemap']['metatags'][0]['og:description']
+      entry['publish_time'] = res['items'][0]['pagemap']['metatags'][0]['iso-8601-publish-date']
+      final.append(entry)
+    else:
+      print('no news')
+    offset += page_size
+  print (final)
 
 if __name__ == '__main__':
-  main()
+  search_bloomberg_news('tsla')
+
+
