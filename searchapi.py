@@ -1,15 +1,38 @@
 import pprint
 from dotenv import load_dotenv
+import csv
+import json
 import os
+import pandas as pd
+import requests
+import urllib.parse
+from newsapi import NewsApiClient
 
 from googleapiclient.discovery import build
 from IPython import embed
+from historical_data import get_historical_data
 
 load_dotenv()
 
+def sentiment_analysis(text):
+    url = "https://text-sentiment.p.rapidapi.com/analyze"
+    formatted = text.translate ({ord(c): "" for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+"})
+    formatted = urllib.parse.quote(formatted)
+    payload = f"text={formatted}"
+    headers = {
+        'x-rapidapi-host': "text-sentiment.p.rapidapi.com",
+        'x-rapidapi-key': os.getenv("RAPID_API_KEY"),
+        'content-type': "application/x-www-form-urlencoded"
+        }
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+    score = 0
+    score += response.json()['pos']
+    score -= response.json()['neg']
+    return score
+
 
 def search_bloomberg_news(query):
-
   key = os.getenv("GOOGLE_CSE_API_KEY")
   service = build("customsearch", "v1",
             developerKey=key)
@@ -27,16 +50,29 @@ def search_bloomberg_news(query):
       ).execute()
     if 'items' in res:
       # pprint.pprint(res)
-      entry = {}
-      entry['content'] = res['items'][0]['pagemap']['metatags'][0]['og:description']
-      entry['publish_time'] = res['items'][0]['pagemap']['metatags'][0]['iso-8601-publish-date']
-      final.append(entry)
+      for article in res['items']:
+        entry = {}
+        entry['content'] = article['pagemap']['metatags'][0]['og:description']
+        entry['publish_time'] = article['pagemap']['metatags'][0]['iso-8601-publish-date']
+        final.append(entry)
     else:
       print('no news')
     offset += page_size
-  print (final)
+  final_df = pd.DataFrame.from_dict(final)
+  final_df['publish_time'] = final_df['publish_time'].apply(lambda x: x[:10])
+  final_df['publish_time'] = pd.to_datetime(final_df['publish_time'])
+  # final_df['publish_time'] = pd.to_datetime(final_df['publish_time'])
+
+  # Apply sentiment score
+  final_df['sentiment'] = final_df['content'].apply(lambda x: sentiment_analysis(x))
+
+  final_df.to_csv('bloomberg_news.csv')
+  # print (final_df)
+  return final_df
 
 if __name__ == '__main__':
-  search_bloomberg_news('tsla')
+  news_df = search_bloomberg_news('tsla')
+  print(news_df)
+
 
 
