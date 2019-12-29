@@ -24,6 +24,7 @@ def sentiment_analysis(text):
         }
 
     response = requests.request("POST", url, data=payload, headers=headers)
+    print(response)
     score = 0
     score += response.json()['pos']
     score -= response.json()['neg']
@@ -32,7 +33,7 @@ def sentiment_analysis(text):
 
 
 
-# Init
+Init
 newsapi = NewsApiClient(api_key='4ff2056a11a24d6fb2cca23f2f37b6c5')
 
 all_articles = newsapi.get_everything(q='tsla',
@@ -53,4 +54,5 @@ news_df['source'] = news_df['source'].apply(lambda x: x['name'])
 news_df['sentiment'] = news_df['title'].apply(lambda x: sentiment_analysis(x))
 
 news_df.to_csv('news_data.csv')
+
 

@@ -15,20 +15,30 @@ def get_historical_data(stock):
   ti = TechIndicators(key)
 
   # Get the data, returns a tuple
-  # tsla_data is a pandas dataframe, tsla_meta_data is a dict
-  tsla_data, tsla_meta_data = ts.get_daily(symbol=stock, outputsize='full')
-  # tsla_data, tsla_meta_data = ts.get_intraday(symbol='TSLA',interval='60min', outputsize='full')
+  # stock_data is a pandas dataframe, stock_meta_data is a dict
+  stock_data, stock_meta_data = ts.get_daily(symbol=stock, outputsize='full')
+  # stock_data, stock_meta_data = ts.get_intraday(symbol='TSLA',interval='60min', outputsize='full')
 
-  # tsla_sma is a dict, tsla_meta_sma also a dict
-  # tsla_sma, tsla_meta_sma = ti.get_sma(symbol='TSLA')
+  # stock_sma is a dict, stock_meta_sma also a dict
+  # stock_sma, stock_meta_sma = ti.get_sma(symbol='TSLA')
 
-  tsla_data['day_change'] = tsla_data['4. close'] - tsla_data['1. open']
-  tsla_data['percentage_change'] = tsla_data['day_change'] / tsla_data['1. open']
+  stock_data['same_day_change'] = stock_data['4. close'] - stock_data['1. open']
+  stock_data['same_day_percentage_change'] = stock_data['same_day_change'] / stock_data['1. open']
+
+  stock_data['1_day_change'] = stock_data['4. close'].diff()
+  stock_data['1_day_percentage_change'] = stock_data['4. close'].pct_change()
+
+  # embed()
 
 
-  # print (tsla_data)
-  return tsla_data
-  # print(tsla_meta_data)
+  stock_data.index = stock_data.index.astype('datetime64[ns, UTC]')
+  # stock_data = stock_data.shift(1)
+
+  # embed()
+
+  print (stock_data)
+  return stock_data
+  # print(stock_meta_data)
 
 
 if __name__ == '__main__':

@@ -58,17 +58,18 @@ def search_bloomberg_news(query):
     else:
       print('no news')
     offset += page_size
-  final_df = pd.DataFrame.from_dict(final)
-  final_df['publish_time'] = final_df['publish_time'].apply(lambda x: x[:10])
-  final_df['publish_time'] = pd.to_datetime(final_df['publish_time'])
-  # final_df['publish_time'] = pd.to_datetime(final_df['publish_time'])
+  news_df = pd.DataFrame.from_dict(final)
+  news_df['s_publish_time'] = news_df['publish_time'].apply(lambda x: x[:10])
+  news_df['s_publish_time'] = pd.to_datetime(news_df['s_publish_time'], utc=True)
+
+  # news_df['publish_time'] = pd.to_datetime(news_df['publish_time'])
 
   # Apply sentiment score
-  final_df['sentiment'] = final_df['content'].apply(lambda x: sentiment_analysis(x))
+  news_df['sentiment'] = news_df['content'].apply(lambda x: sentiment_analysis(x))
 
-  final_df.to_csv('bloomberg_news.csv')
-  # print (final_df)
-  return final_df
+  news_df.to_csv('bloomberg_news.csv')
+  # print (news_df)
+  return news_df
 
 if __name__ == '__main__':
   news_df = search_bloomberg_news('tsla')
