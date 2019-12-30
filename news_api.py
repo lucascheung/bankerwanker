@@ -34,7 +34,7 @@ def sentiment_analysis(text):
 
 
 Init
-newsapi = NewsApiClient(api_key='4ff2056a11a24d6fb2cca23f2f37b6c5')
+newsapi = NewsApiClient(api_key=os.getenv('NEWS_API_KEY'))
 
 all_articles = newsapi.get_everything(q='tsla',
                                     #   sources='bbc-news,the-verge',
