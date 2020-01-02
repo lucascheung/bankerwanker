@@ -61,6 +61,7 @@ def search_bloomberg_news(query):
   news_df = pd.DataFrame.from_dict(final)
   news_df['s_publish_time'] = news_df['publish_time'].apply(lambda x: x[:10])
   news_df['s_publish_time'] = pd.to_datetime(news_df['s_publish_time'], utc=True)
+  # STOCK PRICE IS NOT UTC
 
   # news_df['publish_time'] = pd.to_datetime(news_df['publish_time'])
 
